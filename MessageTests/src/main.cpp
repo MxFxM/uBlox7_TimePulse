@@ -39,6 +39,16 @@ void loop()
     Serial.write(cfg_tp5_32, 40);
     delay(500);
     Serial.write(cfg_rst_4, 12);
+    delay(1000);
+    calcCRC(cfg_tp5_1);
+    calcCRC(cfg_tp5_32);
+    calcCRC(cfg_rst_4);
+    delay(1000);
+    Serial.write(cfg_tp5_1, 9);
+    delay(500);
+    Serial.write(cfg_tp5_32, 40);
+    delay(500);
+    Serial.write(cfg_rst_4, 12);
     delay(5000);
   }
 }
