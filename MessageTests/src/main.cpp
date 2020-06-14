@@ -67,8 +67,6 @@ void calcCRC(uint8_t* message) {
   message++;
   message++;
 
-  Serial.write(*message);
-
   for (uint16_t i = 2; i < length - 2; i++) {
     if (i == 4) {
       length = length + *message;
@@ -82,11 +80,6 @@ void calcCRC(uint8_t* message) {
 
     message++; // advance pointer to next byte
   }
-
-  Serial.write(ck_a);
-  Serial.write(ck_b);
-  Serial.print(length);
-  Serial.println();
 
   // add crc to message
   *message = ck_a;
