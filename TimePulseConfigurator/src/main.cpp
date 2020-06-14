@@ -41,8 +41,9 @@ void setup()
   GPS.begin(9600);
 
   #ifdef FORCE_COLDSTART
-  calcCRC(&cfg_rst_4[0]);
-  GPS.write(cfg_rst_4, sizeof(cfg_rst_4));
+  delay(500); // let gps module boot
+  calcCRC(&cfg_rst_4[0]); // calculate the checksum
+  GPS.write(cfg_rst_4, sizeof(cfg_rst_4)); // send the coldstart message
   #endif
 
   configureTimepulse(1, 1000, 0.1, 0.9);
