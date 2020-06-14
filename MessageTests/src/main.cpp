@@ -5,8 +5,8 @@
 // it is also the reponse to a poll message, confirming the actual settings of the module
 // notes                          | crc starts here |     | little endian  |         |         |           | ns            | ns           | set to freq (Hz)      |                       | set to ratio 2^-32    |                       | ns                    | utc                   | CRC
 // description          header    | class           | id  | length (bytes) | tpIndex | version | reserved  | antCableDelay | rfGroupDelay | freqPeriod            | freqPeriodLock        | pulseLenRatio         | pulseLenRatioLock     | userConfigDelay       | flags                 | ck_a  ck_b
-// decimal                        |                 |     | 32             |         |         |           | 50            | 0            | 1                     | 1                     | 3.435.973.837 => 80%  | 858.993.460 => 20%    | 0                     |                       |
-uint8_t cfg_tp5_32[] = {0xB5, 0x62, 0x06,             0x31, 0x20, 0x00,      0x00,     0x01,     0x00, 0x00, 0x32, 0x00,     0x00, 0x00,    0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xCD, 0xCC, 0xCC, 0xCC, 0x34, 0x33, 0x33, 0x33, 0x00, 0x00, 0x00, 0x00, 0xEF, 0x00, 0x00, 0x00, 0x79, 0xFC};
+// decimal                        |                 |     | 32             |         |         |           | 50            | 0            | 10                    | 1                     | 3.435.973.837 => 80%  | 858.993.460 => 20%    | 0                     |                       |
+uint8_t cfg_tp5_32[] = {0xB5, 0x62, 0x06,             0x31, 0x20, 0x00,      0x00,     0x01,     0x00, 0x00, 0x32, 0x00,     0x00, 0x00,    0x0A, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0xCD, 0xCC, 0xCC, 0xCC, 0x34, 0x33, 0x33, 0x33, 0x00, 0x00, 0x00, 0x00, 0xEF, 0x00, 0x00, 0x00, 0x79, 0xFC};
 
 // cfg-tp5 message: poll time pulse parameters
 // this message is sent after setting new parameters
@@ -61,18 +61,14 @@ void calcCRC(uint8_t* message) {
   uint8_t ck_a = 0;
   uint8_t ck_b = 0;
 
-  uint16_t length = 0;
+  // subtract 4 for header and crc bytes
+  uint16_t length = sizeof(message) - 4;
 
-  // add 4 to length for class, id and length field
-  for (uint16_t i = 0; i < length + 4; i++) {
-    // read the length fields
-    if (i == 2) {
-      length = length + *message;
-    }
-    if (i == 3) {
-      length = length + (*message << 8);
-    }
+  // advance 2 adresses to skip header
+  message++;
+  message++;
 
+  for (uint16_t i = 0; i < length; i++) {
     // calculate the checksum
     ck_a = ck_a + *message;
     ck_b = ck_b + ck_a;
