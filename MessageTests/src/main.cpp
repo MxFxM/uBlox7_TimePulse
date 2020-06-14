@@ -40,9 +40,9 @@ void loop()
     delay(500);
     Serial.write(cfg_rst_4, 12);
     delay(1000);
-    calcCRC(cfg_tp5_1);
-    calcCRC(cfg_tp5_32);
-    calcCRC(cfg_rst_4);
+    calcCRC(&cfg_tp5_1[0]);
+    calcCRC(&cfg_tp5_32[0]);
+    calcCRC(&cfg_rst_4[0]);
     delay(1000);
     Serial.write(cfg_tp5_1, 9);
     delay(500);
@@ -61,20 +61,32 @@ void calcCRC(uint8_t* message) {
   uint8_t ck_a = 0;
   uint8_t ck_b = 0;
 
-  // subtract 4 for header and crc bytes
-  uint16_t length = sizeof(message) - 4;
+  uint16_t length = 8;
 
   // advance 2 adresses to skip header
   message++;
   message++;
 
-  for (uint16_t i = 0; i < length; i++) {
+  Serial.write(*message);
+
+  for (uint16_t i = 2; i < length - 2; i++) {
+    if (i == 4) {
+      length = length + *message;
+    }
+    if (i == 5) {
+      length = length + (*message << 8);
+    }
     // calculate the checksum
     ck_a = ck_a + *message;
     ck_b = ck_b + ck_a;
 
     message++; // advance pointer to next byte
   }
+
+  Serial.write(ck_a);
+  Serial.write(ck_b);
+  Serial.print(length);
+  Serial.println();
 
   // add crc to message
   *message = ck_a;
